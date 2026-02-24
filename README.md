@@ -1,26 +1,31 @@
-# DIBR-Diffusion-Stereo
+# DIBR-Diffusion-Stereo  
+Single-Image 2D → 3D Stereo Generation with DIBR + Stable Diffusion Restoration
 
-Single-image 2D → 3D stereo generation with DIBR, optionally enhanced by Stable Diffusion + ControlNet Tile.
+This project demonstrates a complete pipeline for generating stereo 3D views from a single image using:
 
-一个从单张图片生成左右眼立体视图的完整流水线，基于 DIBR（Depth-Image-Based Rendering），并可选使用 Stable Diffusion + ControlNet Tile 对左右眼结果进行去伪影和细节修复。
+- MiDaS depth estimation  
+- DIBR forward warping  
+- Hole filling (OpenCV inpaint)  
+- Optional Stable Diffusion + ControlNet Tile restoration for left/right views  
+
+The goal is to improve visual quality of stereo pairs while preserving geometric consistency.
 
 ---
 
 ## ✨ Features
 
-- Mono image → stereo Left / Right views
-- MiDaS depth estimation
-- Forward warp + Z-buffer
-- Hole filling (OpenCV inpaint)
-- Optional Stable Diffusion restoration for both eyes
-- ControlNet Tile for structure-preserving artifact removal
-- Gradio interactive demo
-- Side-by-Side stereo + Red-Cyan Anaglyph output
-- Full visualization of intermediate stages
+- Single image → Left / Right stereo views  
+- Forward warp + Z-buffer  
+- Hole mask visualization  
+- Inpaint filling  
+- Stable Diffusion restoration (left & right separately)  
+- Side-by-Side stereo  
+- Red-Cyan Anaglyph  
+- Full intermediate visualization  
 
 ---
 
-## 🧠 Pipeline Overview
+## 🧠 Pipeline
 Input Image
 │
 ▼
@@ -33,15 +38,12 @@ Disparity Generation
 Forward Warp (Left / Right)
 │
 ▼
-Hole Filling (Inpaint)
+Hole Filling
 │
-├───────────────► Normal Stereo Output
-│
-▼
-Stable Diffusion (Left & Right separately)
+├────────► Normal Stereo
 │
 ▼
-Restored Stereo Output
+Stable Diffusion Restoration (optional)
 
 ---
 
@@ -49,125 +51,106 @@ Restored Stereo Output
 
 ## Input
 
-![input](demo_images/diffusion/01_input.png)
+![input](01_input.png)
 
 ---
 
 ## Stage 1 — Forward Warp (with holes)
 
-Left Warp  
-![left_warp](demo_images/diffusion/02_left_warp.png)
+### Left Warp
+![left_warp](02_left_warp.png)
 
-Right Warp  
-![right_warp](demo_images/diffusion/03_right_warp.png)
+### Right Warp
+![right_warp](03_right_warp.png)
 
 ---
 
 ## Stage 2 — Hole Masks
 
-Left Mask  
-![left_mask](demo_images/diffusion/04_left_mask.png)
+### Left Mask
+![left_mask](04_left_mask.png)
 
-Right Mask  
-![right_mask](demo_images/diffusion/05_right_mask.png)
+### Right Mask
+![right_mask](05_right_mask.png)
 
 ---
 
 ## Stage 3 — Inpaint Filled Stereo
 
-Left Filled  
-![left_filled](demo_images/diffusion/06_left_filled.png)
+### Left Filled
+![left_filled](06_left_filled.png)
 
-Right Filled  
-![right_filled](demo_images/diffusion/07_right_filled.png)
+### Right Filled
+![right_filled](07_right_filled.png)
 
 ---
 
-## Stage 4 — Diffusion Restoration (Left / Right)
+## Stage 4 — Diffusion Restoration
 
-Left Restored  
-![left_restored](demo_images/diffusion/08_left_restored.png)
+### Left Restored
+![left_restored](08_left_restored.png)
 
-Right Restored  
-![right_restored](demo_images/diffusion/09_right_restored.png)
+### Right Restored
+![right_restored](09_right_restored.png)
 
 ---
 
 ## Stage 5 — Stereo Outputs
 
 ### Side-by-Side (Before Diffusion)
-
-![sbs_before](demo_images/diffusion/10_sbs_before.png)
+![sbs_before](10_sbs_before.png)
 
 ### Side-by-Side (After Diffusion)
-
-![sbs_after](demo_images/diffusion/11_sbs_after.png)
+![sbs_after](11_sbs_after.png)
 
 ---
 
 ### Red-Cyan Anaglyph (Before Diffusion)
-
-![ana_before](demo_images/diffusion/12_anaglyph_before.png)
+![ana_before](12_anaglyph_before.png)
 
 ### Red-Cyan Anaglyph (After Diffusion)
-
-![ana_after](demo_images/diffusion/13_anaglyph_after.png)
-
----
-
-## Stage 6 — Depth & Disparity Visualization
-
-Depth Map  
-![depth](demo_images/diffusion/14_depth.png)
-
-Disparity Map  
-![disparity](demo_images/diffusion/15_disparity.png)
+![ana_after](13_anaglyph_after.png)
 
 ---
 
-# 🧪 Normal DIBR Version (Without Diffusion)
+## Stage 6 — Depth & Disparity
 
-## Input
+### Depth Map
+![depth](14_depth.png)
 
-![n_input](demo_images/normal/01_input.png)
-
----
-
-## Forward Warp
-
-Left Warp  
-![n_left_warp](demo_images/normal/02_left_warp.png)
-
-Right Warp  
-![n_right_warp](demo_images/normal/03_right_warp.png)
+### Disparity Map
+![disparity](15_disparity.png)
 
 ---
 
-## Filled Stereo
+## ⚙ Key Notes
 
-Left Filled  
-![n_left_filled](demo_images/normal/04_left_filled.png)
-
-Right Filled  
-![n_right_filled](demo_images/normal/05_right_filled.png)
-
----
-
-## Stereo Outputs
-
-Side-by-Side  
-![n_sbs](demo_images/normal/06_sbs.png)
-
-Red-Cyan Anaglyph  
-![n_ana](demo_images/normal/07_anaglyph.png)
+- Left / Right views are restored independently  
+- Right view uses `seed + 1` to avoid texture locking  
+- Recommended diffusion strength: **0.25 – 0.40**  
+- Increase `dmax` to enhance stereo depth  
 
 ---
 
-## 🛠 Installation
+## 🛠 Dependencies
+torch
+opencv-python
+diffusers
+transformers
+accelerate
+safetensors
+gradio
+pillow
 
-Tested on Windows + Conda + Python 3.10
+---
+
+## ▶ Run Demo
+
+Diffusion + DIBR:
 
 ```bash
-pip install torch torchvision
-pip install diffusers transformers accelerate safetensors
-pip install opencv-python pillow gradio
+python demo_dibr_plus_diffusion.py
+
+│
+▼
+Enhanced Stereo Output
